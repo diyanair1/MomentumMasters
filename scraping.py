@@ -6,6 +6,7 @@ import time
 
 options = webdriver.ChromeOptions()
 options.add_argument("--start-maximized")
+options.add_argument("--headless")
 driver = webdriver.Chrome(options=options)
 
 url = "https://www.barchart.com/stocks/highs-lows?orderBy=lastPrice&orderDir=desc&page=1"
