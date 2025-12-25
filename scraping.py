@@ -2,17 +2,30 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+
 import time
 
 options = webdriver.ChromeOptions()
+options.add_argument("--headless=new")
 options.add_argument("--start-maximized")
+options.add_argument("--window-size=1920,1080")
+options.add_argument("--disable-blink-features=AutomationControlled")
+options.add_argument("--disable-infobars")
+options.add_argument("--disable-extensions")
+options.add_argument("--no-sandbox")
+options.add_argument("--disable-dev-shm-usage")
+options.add_argument("--enable-javascript")
+options.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
 driver = webdriver.Chrome(options=options)
+
 
 url = "https://www.barchart.com/stocks/highs-lows?orderBy=lastPrice&orderDir=desc&page=1"
 driver.get(url)
 
+
 def get_shadow_root(driver, host_element):
     return driver.execute_script("return arguments[0].shadowRoot", host_element)
+
 
 time.sleep(5)  # Wait for the page to load completely
 
@@ -30,14 +43,21 @@ try:
 except Exception as e:
     print(f"Could not click 'Show All' button: {e}")
 
+
 # driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 driver.execute_script("window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});")
 time.sleep(5)  # Wait for the page to load completely
 
 # 1) find the shadow host
-host = WebDriverWait(driver, 10).until(
-    EC.presence_of_element_located((By.CSS_SELECTOR, "bc-data-grid"))
-)
+
+try:
+    host = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, "bc-data-grid"))
+    )
+except Exception as e:
+    print(f"Could not find shadow host: {e}")
+    driver.quit()
+    exit(1)
 
 # 2) get its shadow root
 shadow_root = get_shadow_root(driver, host)
